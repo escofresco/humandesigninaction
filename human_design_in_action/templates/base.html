@@ -1,0 +1,583 @@
+{% load static i18n %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>{% block title %}Human Design in Action{% endblock title %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.2.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.2.0/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        #mapbox { position:absolute; top:0; bottom:0; width:100%; }
+    </style>
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <link rel="icon" href="{% static 'images/favicons/favicon.ico' %}">
+
+    {% block css %}
+
+    <!-- Latest compiled and minified Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+
+    <!-- Your stuff: Third-party CSS libraries go here -->
+    <link href="https://fonts.googleapis.com/css?family=Poppins:100,200,400,300,500,600,700" rel="stylesheet">
+    <!--
+    CSS
+    ============================================= -->
+    <link rel="stylesheet" href="{% static 'css/linearicons.css' %}">
+    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
+    <link rel="stylesheet" href="{% static 'css/jquery-ui.css' %}">
+    <link rel="stylesheet" href="{% static 'css/nice-select.css' %}">
+    <link rel="stylesheet" href="{% static 'css/animate.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/owl.carousel.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <!-- This file stores project-specific CSS -->
+
+    <link href="{% static 'css/project.css' %}" rel="stylesheet">
+
+
+    {% endblock %}
+
+  </head>
+
+  <body>
+    {% comment %}
+    <div class="mb-1">
+      <nav class="navbar navbar-expand-md navbar-light bg-light">
+        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <a class="navbar-brand" href="{% url 'home' %}">Human Design in Action</a>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="{% url 'home' %}">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'about' %}">About</a>
+            </li>
+            {% if request.user.is_authenticated %}
+              <li class="nav-item">
+                {# URL provided by django-allauth/account/urls.py #}
+                <a class="nav-link" href="{% url 'users:detail' request.user.username  %}">{% trans "My Profile" %}</a>
+              </li>
+              <li class="nav-item">
+                {# URL provided by django-allauth/account/urls.py #}
+                <a class="nav-link" href="{% url 'account_logout' %}">{% trans "Sign Out" %}</a>
+              </li>
+            {% else %}
+              <li class="nav-item">
+                {# URL provided by django-allauth/account/urls.py #}
+                <a id="sign-up-link" class="nav-link" href="{% url 'account_signup' %}">{% trans "Sign Up" %}</a>
+              </li>
+              <li class="nav-item">
+                {# URL provided by django-allauth/account/urls.py #}
+                <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}">{% trans "Sign In" %}</a>
+              </li>
+            {% endif %}
+          </ul>
+        </div>
+      </nav>
+
+    </div>
+    {% endcomment %}
+    <header id="header">
+    <div class="container main-menu">
+      <div class="row align-items-center justify-content-between d-flex">
+        <div id="logo">
+          <a href="{% url 'home' %}"><img src="https://via.placeholder.com/50x35.png?text=Logo" alt="" title="" /></a>
+        </div>
+        <nav id="nav-menu-container">
+          <ul class="nav-menu">
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li><a href="{% url 'about' %}">About</a></li>
+            <li><a href="{% url 'services' %}">Services</a></li>
+            <li><a href="{% url 'pricing' %}">Pricing</a></li>
+            <li class="menu-has-children"><a href="">Blog</a>
+              <ul>
+                <li><a href="blog-home.html">Blog Home</a></li>
+                <li><a href="blog-single.html">Blog Single</a></li>
+              </ul>
+            </li>
+            <li class="menu-has-children"><a href="">Pages</a>
+              <ul>
+                <li><a href="elements.html">Elements</a></li>
+                <li class="menu-has-children"><a href="">Level 2 </a>
+                  <ul>
+                    <li><a href="#">Item One</a></li>
+                    <li><a href="#">Item Two</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><a href="{% url 'contact' %}">Contact</a></li>
+          </ul>
+        </nav><!-- #nav-menu-container -->
+      </div>
+    </div>
+    </header><!-- #header -->
+
+    <div class="container">
+
+      {% if messages %}
+          {% for message in messages %}
+              <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
+          {% endfor %}
+      {% endif %}
+
+
+
+    </div> <!-- /container -->
+    {% block content %}
+      <p>Use this document as a way to quick start any new project.</p>
+      {% block aboutarea %}
+      <!-- Start home-about Area -->
+      <section class="home-about-area pt-120">
+          <div class="container">
+              <div class="row align-items-center justify-content-between">
+                  <div class="col-lg-6 col-md-6 home-about-left">
+                      <img class="img-fluid" src="https://via.placeholder.com/603x428.png?text=Second%80Profile%80Photo" alt="">
+                  </div>
+                  <div class="col-lg-5 col-md-6 home-about-right">
+                      <h6>A little about me</h6>
+                      <h1 class="text-uppercase">My journey</h1>
+                      <p>
+                          In 2003, I had my first brief Human Design reading. Finally someone was able to explain to me precisely why I was so busy all the time. Astrology and numerology gave me generalities, and now Human Design gave me specifics that I found wondrous.
+                      </p>
+                      <a href="#" class="primary-btn text-uppercase">Tell me more</a>
+                  </div>
+              </div>
+          </div>
+      </section>
+      <!-- End home-about Area -->
+      {% endblock aboutarea %}
+      {% block servicesarea %}
+      <!-- Start services Area -->
+      <section class="services-area section-gap">
+          <div class="container">
+              <div class="row d-flex justify-content-center">
+                  <div class="menu-content  col-lg-7">
+                      <div class="title text-center">
+                          <h1 class="mb-10">A mini-reading gives you a mini-boost</h1>
+                          <p>Just thirty minutes could expand your life.</p>
+                      </div>
+                  </div>
+              </div>
+              <div class="row">
+                  <div class="col-lg-4 col-md-6">
+                      <div class="single-services">
+                          <span class="lnr lnr-heart-pulse"></span>
+                          <a href="#"><h4>Human Design Body Graph</h4></a>
+                          <p>
+                              Every consultation includes a personalized body graph, representing shorthand for the fundamentals of who you are and how you operate in the world. This chart is yours for the asking.
+                          </p>
+                      </div>
+                  </div>
+                  <div class="col-lg-4 col-md-6">
+                      <div class="single-services">
+                          <span class="lnr lnr-pie-chart"></span>
+                          <a href="#"><h4>The Language of the Chart.</h4></a>
+                          <p>
+                              Learn the language of human design and gain a concise definition of all of the major terms, including Types, Centers, Channels, Authority and Profiles. With the help of an Introduction, you can begin to read your Human Design chart.
+                          </p>
+                      </div>
+                  </div>
+                  <div class="col-lg-4 col-md-6">
+                      <div class="single-services">
+                          <span class="lnr lnr-leaf"></span>
+                          <a href="#"><h4>Spiritual Sessions</h4></a>
+                          <p>
+                              A 30-minute discussion can change the way you make deciscions. Having a conversation about your Type and Center can transform your day-to-day decision-making strategy.
+                          </p>
+                      </div>
+                  </div>
+                  <div class="col-lg-4 col-md-6">
+                      <div class="single-services">
+                          <span class="lnr lnr-eye"></span>
+                          <a href="#"><h4>Awareness-expanding content</h4></a>
+                          <p>
+                               Having access to personalized information raises consciousness. A short reading could expand your awareness and give you special insight into your specific energy flow.
+                          </p>
+                      </div>
+                  </div>
+                  <div class="col-lg-4 col-md-6">
+                      <div class="single-services">
+                          <span class="lnr lnr-map"></span>
+                          <a href="#"><h4>A roadmap for success</h4></a>
+                          <p>
+                              The biggest question I get from clients is, "What's next?" Experience is the best teacher, but I'm hear to guide you along the way. As a client, you'll find me available whenever you need.
+                          </p>
+                      </div>
+                  </div>
+                  <div class="col-lg-4 col-md-6">
+                      <div class="single-services">
+                          <span class="lnr lnr-book"></span>
+                          <a href="#"><h4><i>Introduction to Human Design</i></h4></a>
+                          <p>
+                              Attain a sense of abundance. Learn to build healthy, eternal relationships. Discover opportunities that awaken your inner abilities. Lose the stress and become intrinsically healthy. Discover your birthright for abundance and inner peace. All and more in this e-book.
+                          </p>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </section>
+      <!-- End services Area -->
+      {% endblock servicesarea %}
+      {% block factsarea %}
+      <!-- Start fact Area -->
+      <section class="facts-area section-gap" id="facts-area">
+          <div class="container">
+              <div class="row">
+                  <div class="col-lg-3 col-md-6 single-fact">
+                      <h1 class="counter">6784</h1>
+                      <p>Books sold</p>
+                  </div>
+                  <div class="col-lg-3 col-md-6 single-fact">
+                      <h1 class="counter">2239</h1>
+                      <p>Readings</p>
+                  </div>
+                  <div class="col-lg-3 col-md-6 single-fact">
+                      <h1 class="counter">435</h1>
+                      <p>Happy clients</p>
+                  </div>
+                  <div class="col-lg-3 col-md-6 single-fact">
+                      <h1>Infinite</h1>
+                      <p>Satisfaction</p>
+                  </div>
+              </div>
+          </div>
+      </section>
+      <!-- End fact Area -->
+      {% endblock factsarea %}
+      {% block testimonialarea %}
+      <!-- Start testimonial Area -->
+      <section class="testimonial-area section-gap">
+          <div class="container">
+              <div class="row d-flex justify-content-center">
+                  <div class="menu-content pb-70 col-lg-8">
+                      <div class="title text-center">
+                          <h1 class="mb-10">Testimonials</h1>
+                          <p>Sometimes we've gotta take a step back before we can take a step forward.</p>
+                      </div>
+                  </div>
+              </div>
+              <div class="row">
+                  <div class="active-testimonial">
+                      <div class="single-testimonial item d-flex flex-row">
+                          <div class="thumb">
+                              <img class="img-fluid" src="https://via.placeholder.com/80x80.jpg?text=melissa+mccarthy" alt="">
+                          </div>
+                          <div class="desc">
+                              <p>
+                                  I found Cathie because I was at a roadblock in my life. After a few sessions, I learned constructive strategies for financial independence and personal wellbeing. Cathie helped me find piece and tranquility in everything you do.
+                              </p>
+                              <h4>Melissa McCarthy</h4>
+                              <p>CEO at Google</p>
+                          </div>
+                      </div>
+                      <div class="single-testimonial item d-flex flex-row">
+                          <div class="thumb">
+                              <img class="img-fluid" src="https://via.placeholder.com/80x80.jpg?text=john+mccain" alt="">
+                          </div>
+                          <div class="desc">
+                              <p>
+                                  Cathie helped me find my purpose. She helped me look inward and gave me the foundations for looking outward.
+                              </p>
+                              <h4>John McCain</h4>
+                              <p>Almost President</p>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </section>
+      <!-- End testimonial Area -->
+      {% endblock testimonialarea %}
+      {% block pricearea %}
+      <!-- Start price Area -->
+      <section class="price-area section-gap">
+          <div class="container">
+              <div class="row d-flex justify-content-center">
+                  <div class="menu-content pb-70 col-lg-8">
+                      <div class="title text-center">
+                          <h1 class="mb-10">Choose Your Plan</h1>
+                          <p>Find a service that works best for you.</p>
+                      </div>
+                  </div>
+              </div>
+              <div class="row">
+                  <div class="col-lg-3 col-md-6 single-price">
+                      <div class="top-part">
+                          <h1 class="package-no">01</h1>
+                          <h4>Sample</h4>
+                          <p class="mt-10">For the unsure</p>
+                      </div>
+                      <div class="package-list">
+                          <ul>
+                              <li>Human Design Chart</li>
+                              <li><strike>An Introduction to Human Design eBook</strike></li>
+                              <li><strike>Human Design Body Graph</strike></li>
+                              <li><strike>MP3 recording of your reading</strike></li>		<li><strike>1 hour coaching session</strike></li>
+                          </ul>
+                      </div>
+                      <div class="bottom-part">
+                          <h1>Free</h1>
+                          <a class="price-btn text-uppercase" href="#">Try Now</a>
+                      </div>
+                  </div>
+                  <div class="col-lg-3 col-md-6 single-price">
+                      <div class="top-part">
+                          <h1 class="package-no">02</h1>
+                          <h4>Product Suite</h4>
+                          <p class="mt-10">For the curious</p>
+                      </div>
+                      <div class="package-list">
+                          <ul>
+                              <li>Human Design Chart</li>
+                              <li>An Introduction to Human Design eBook</li>
+                              <li>Human Design Body Graph</li>
+                              <li><strike>MP3 recording of your reading</strike></li>		<li><strike>1 hour coaching session</strike></li>
+                          </ul>
+                      </div>
+                      <div class="bottom-part">
+                          <h1>$100</h1>
+                          <a class="price-btn text-uppercase" href="#">Buy Now</a>
+                      </div>
+                  </div>
+                  <div class="col-lg-3 col-md-6 single-price">
+                      <div class="top-part">
+                          <h1 class="package-no">03</h1>
+                          <h4>Premium</h4>
+                          <p class="mt-10">For the introspective</p>
+                      </div>
+                      <div class="package-list">
+                          <ul>
+                              <li>Human Design Chart</li>
+                              <li>An Introduction to Human Design eBook</li>
+                              <li>Human Design Body Graph</li>
+                              <li>MP3 recording of your reading</li>
+                              <li>1 hour coaching session</li>
+                          </ul>
+                      </div>
+                      <div class="bottom-part">
+                          <h1>$250</h1>
+                          <a class="price-btn text-uppercase" href="#">Buy Now</a>
+                      </div>
+                  </div>
+                  <div class="col-lg-3 col-md-6 single-price">
+                      <div class="top-part">
+                          <h1 class="package-no">04</h1>
+                          <h4>Exclusive</h4>
+                          <p class="mt-10">For the experienced</p>
+                      </div>
+                      <div class="package-list">
+                          <ul>
+                              <li>Human Design Chart</li>
+                              <li>An Introduction to Human Design eBook</li>
+                              <li>Human Design Body Graph</li>
+                              <li>MP3 recording of your reading</li>
+                              <li>1 hour coaching session</li>
+                              <li>2 free additional sessions!</li>
+                          </ul>
+                      </div>
+                      <div class="bottom-part">
+                          <h1><strike>Sold Out</strike></h1>
+                          <a class="price-btn text-uppercase" href="#">Sold Out</a>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </section>
+      <!-- End price Area -->
+      {% endblock pricearea%}
+      {% block blogarea %}
+      <!-- Start recent-blog Area -->
+      <section class="recent-blog-area section-gap">
+          <div class="container">
+              <div class="row justify-content-center">
+                  <div class="col-md-8 pb-30 header-text">
+                      <h1>Latest posts from my blog</h1>
+                      <p>
+                          A little insight a day can make a lot of your problems go away.
+                      </p>
+                  </div>
+              </div>
+              <div class="row">
+                  <div class="single-recent-blog col-lg-4 col-md-4">
+                      <div class="thumb">
+                          <img class="f-img img-fluid mx-auto" src="https://via.placeholder.com/360x220.jpg?text=an+oldy+but+a+goody" alt="">
+                      </div>
+                      <div class="bottom d-flex justify-content-between align-items-center flex-wrap">
+                          <div>
+                              <img class="img-fluid" src="https://via.placeholder.com/30x30.jpg" alt="">
+                              <a href="#"><span>Cathie O'Hanks</span></a>
+                          </div>
+                          <div class="meta">
+                              13th Dec
+                              <span class="lnr lnr-heart"></span> 15
+                              <span class="lnr lnr-bubble"></span> 04
+                          </div>
+                      </div>
+                      <a href="#">
+                          <h4>Break Through Self Doubt
+                          And Fear</h4>
+                      </a>
+                      <p>
+                          Dream interpretation has many forms; it can be done for the sake of fun, hobby or can be taken up as a serious career.
+                      </p>
+                  </div>
+                  <div class="single-recent-blog col-lg-4 col-md-4">
+                      <div class="thumb">
+                          <img class="f-img img-fluid mx-auto" src="https://via.placeholder.com/360x220.jpg?text=an+article+to+remember" alt="">
+                      </div>
+                      <div class="bottom d-flex justify-content-between align-items-center flex-wrap">
+                          <div>
+                              <img class="img-fluid" src="https://via.placeholder.com/30x30.jpg" alt="">
+                              <a href="#"><span>Cathie O'Hanks</span></a>
+                          </div>
+                          <div class="meta">
+                              13th Dec
+                              <span class="lnr lnr-heart"></span> 15
+                              <span class="lnr lnr-bubble"></span> 04
+                          </div>
+                      </div>
+                      <a href="#">
+                          <h4>Are dreams actual alternate realities?</h4>
+                      </a>
+                      <p>
+                          Dreams of going on vacation may actually be an alternate reality where you're having a good time.
+                      </p>
+                  </div>
+                  <div class="single-recent-blog col-lg-4 col-md-4">
+                      <div class="thumb">
+                          <img class="f-img img-fluid mx-auto" src="https://via.placeholder.com/360x220?text=dreams+are+real" alt="">
+                      </div>
+                      <div class="bottom d-flex justify-content-between align-items-center flex-wrap">
+                          <div>
+                              <img class="img-fluid" src="https://via.placeholder.com/30x30.jpg" alt="">
+                              <a href="#"><span>Cathie O'Hanks</span></a>
+                          </div>
+                          <div class="meta">
+                              13th Dec
+                              <span class="lnr lnr-heart"></span> 15
+                              <span class="lnr lnr-bubble"></span> 04
+                          </div>
+                      </div>
+                      <a href="#">
+                          <h4>Have time machines already been invented?</h4>
+                      </a>
+                      <p>
+                          So many of us are demotivated to achieve anything. Recent discoveries suggest that if you had a time machine, things would be different.
+                      </p>
+                  </div>
+              </div>
+          </div>
+      </section>
+      <!-- end recent-blog Area -->
+      {% endblock blogarea %}
+
+    {% endblock content %}
+
+    {% block modal %}{% endblock modal %}
+    <!-- start footer Area -->
+    <footer class="footer-area section-gap">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-5 col-md-6 col-sm-6">
+                    <div class="single-footer-widget">
+                        <h4>About Me</h4>
+                        <p>
+                            For a number of years, I have used non-traditional counseling to assist, direct, encourage, guide and support my clients in achieving success in every aspect of life – relationships, career, finances, you name it.
+                        </p>
+                        <p class="footer-text"><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+    Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved
+    <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
+                    </div>
+                </div>
+                {% comment %}
+                <div class="col-lg-5 col-md-6 col-sm-6">
+                    <div class="single-footer-widget">
+                        <h4>Newsletter</h4>
+                        <p>Stay updated with our latest trends</p>
+                        <div class="" id="mc_embed_signup">
+                             <form target="_blank" action="https://spondonit.us12.list-manage.com/subscribe/post?u=1462626880ade1ac87bd9c93a&amp;id=92a4423d01" method="get">
+                              <div class="input-group">
+                                <input type="text" class="form-control" name="EMAIL" placeholder="Enter Email Address" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter Email Address '" required="" type="email">
+                                <div class="input-group-btn">
+                                  <button class="btn btn-default" type="submit">
+                                    <span class="lnr lnr-arrow-right"></span>
+                                  </button>
+                                </div>
+                                    <div class="info"></div>
+                              </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 col-sm-6 social-widget">
+                    <div class="single-footer-widget">
+                        <h4>Follow Me</h4>
+                        <p>Let us be social</p>
+                        <div class="footer-social d-flex align-items-center">
+                            <a href="#"><i class="fa fa-facebook"></i></a>
+                            <a href="#"><i class="fa fa-twitter"></i></a>
+                            <a href="#"><i class="fa fa-dribbble"></i></a>
+                            <a href="#"><i class="fa fa-behance"></i></a>
+                        </div>
+                    </div>
+                </div>
+                {% endcomment %}
+            </div>
+        </div>
+    </footer>
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    {% block javascript %}
+
+      <!-- Bootstrap JS and its dependencies-->
+      <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+      <!-- Your stuff: Third-party javascript libraries go here -->
+      <script src="{% static 'js/vendor/jquery-2.2.4.min.js' %}"></script>
+      <script src="{% static 'js/popper.min.js' %}"></script>
+      <script src="{% static 'js/vendor/bootstrap.min.js' %}"></script>
+      <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBhOdIF3Y9382fqJYt5I_sswSrEw5eihAA"></script>
+      <script src="{% static 'js/easing.min.js' %}"></script>
+      <script src="{% static 'js/hoverIntent.js' %}"></script>
+      <script src="{% static 'js/superfish.min.js' %}"></script>
+      <script src="{% static 'js/jquery.ajaxchimp.min.js' %}"></script>
+      <script src="{% static 'js/jquery.magnific-popup.min.js' %}"></script>
+      <script src="{% static 'js/jquery.tabs.min.js' %}"></script>
+      <script src="{% static 'js/jquery.nice-select.min.js' %}"></script>
+      <script src="{% static 'js/isotope.pkgd.min.js' %}"></script>
+      <script src="{% static 'js/waypoints.min.js' %}"></script>
+      <script src="{% static 'js/jquery.counterup.min.js' %}"></script>
+      <script src="{% static 'js/simple-skillbar.js' %}"></script>
+      <script src="{% static 'js/owl.carousel.min.js' %}"></script>
+      <script src="{% static 'js/mail-script.js' %}"></script>
+      <script src="{% static 'js/main.js' %}"></script>
+
+      <!-- place project specific Javascript in this file -->
+
+      <script src="{% static 'js/project.js' %}"></script>
+
+
+    {% endblock javascript %}
+  </body>
+</html>

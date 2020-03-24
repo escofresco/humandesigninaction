@@ -1,0 +1,7 @@
+# PostgreSQL
+# ------------------------------------------------------------------------------
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_DB=human_design_in_action
+POSTGRES_USER=GBzFCCYyXSbBgFCeSWCaWOQlgzGmgeLu
+POSTGRES_PASSWORD=7WK8QfXSQwPrADuj8tNOHcd7c12RH7JfrPcv2txYDuobbjmJyCy9pqyFAXWbQ1XW

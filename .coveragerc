@@ -1,0 +1,5 @@
+[run]
+include = human_design_in_action/*
+omit = *migrations*, *tests*
+plugins =
+    django_coverage_plugin
